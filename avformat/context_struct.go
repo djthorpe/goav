@@ -7,6 +7,7 @@ package avformat
 //#include <libavformat/avformat.h>
 import "C"
 import (
+	"reflect"
 	"unsafe"
 )
 
@@ -42,12 +43,25 @@ func (ctxt *Context) InterruptCallback() AvIOInterruptCB {
 	return AvIOInterruptCB(ctxt.interrupt_callback)
 }
 
-func (ctxt *Context) Programs() **AvProgram {
-	return (**AvProgram)(unsafe.Pointer(ctxt.programs))
+func (ctxt *Context) Programs() []*AvProgram {
+	header := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(ctxt.programs)),
+		Len: int(ctxt.NbPrograms()),
+		Cap: int(ctxt.NbPrograms()),
+	}
+
+	return *((*[]*AvProgram)(unsafe.Pointer(&header)))
 }
 
-func (ctxt *Context) Streams() *Stream {
-	return (*Stream)(unsafe.Pointer(ctxt.streams))
+
+func (ctxt *Context) Streams() []*Stream {
+	header := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(ctxt.streams)),
+		Len: int(ctxt.NbStreams()),
+		Cap: int(ctxt.NbStreams()),
+	}
+
+	return *((*[]*Stream)(unsafe.Pointer(&header)))
 }
 
 func (ctxt *Context) Filename() string {
@@ -179,7 +193,7 @@ func (ctxt *Context) Duration() int64 {
 }
 
 func (ctxt *Context) MaxAnalyzeDuration2() int64 {
-	return int64(ctxt.max_analyze_duration2)
+	return int64(ctxt.max_analyze_duration)
 }
 
 func (ctxt *Context) MaxInterleaveDelta() int64 {
@@ -191,7 +205,7 @@ func (ctxt *Context) OutputTsOffset() int64 {
 }
 
 func (ctxt *Context) Probesize2() int64 {
-	return int64(ctxt.probesize2)
+	return int64(ctxt.probesize)
 }
 
 func (ctxt *Context) SkipInitialBytes() int64 {
@@ -248,4 +262,12 @@ func (ctxt *Context) PacketSize() uint {
 
 func (ctxt *Context) Probesize() uint {
 	return uint(ctxt.probesize)
+}
+
+func (ctxt *Context) SetPb(pb *AvIOContext) {
+	ctxt.pb = (*C.struct_AVIOContext)(unsafe.Pointer(pb))
+}
+
+func (ctxt *Context) Pb2() **AvIOContext {
+	return (**AvIOContext)(unsafe.Pointer(&ctxt.pb))
 }
