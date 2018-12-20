@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/giorgisio/goav/avcodec"
+	"github.com/djthorpe/goav/avcodec"
 )
 
 func (cctxt *CodecContext) Type() MediaType {
@@ -130,8 +130,8 @@ func (cctx *CodecContext) SetQCompress(v float32) {
 func (cctx *CodecContext) GetExtraData() []byte {
 	header := reflect.SliceHeader{
 		Data: uintptr(unsafe.Pointer(cctx.extradata)),
-		Len: int(cctx.extradata_size),
-		Cap: int(cctx.extradata_size),
+		Len:  int(cctx.extradata_size),
+		Cap:  int(cctx.extradata_size),
 	}
 
 	return *((*[]byte)(unsafe.Pointer(&header)))
